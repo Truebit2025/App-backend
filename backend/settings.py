@@ -16,8 +16,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 SECRET_KEY = config("SECRET_KEY")
-DEBUG = config("DEBUG", default=False, cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+
+# safer parsing of DEBUG to avoid invalid truth value errors
+DEBUG = config("DEBUG", default="False").lower() in ("true", "1", "yes")
+
+# strip out empty strings if ALLOWED_HOSTS is empty
+ALLOWED_HOSTS = [h for h in config("ALLOWED_HOSTS", default="").split(",") if h]
 
 # Application definition
 INSTALLED_APPS = [
@@ -135,12 +139,9 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings
-
-# CORS settings
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default="", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default="", cast=Csv())
 CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=False, cast=bool)
-
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
 
 # Security headers
